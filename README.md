@@ -14,20 +14,21 @@ Option to write results to either Linux or HDFS folders
 
 # How to run?
 ```python
-python xml_to_json.py
+xml_to_json
 ```
 
 # Parameters
 ```python
-usage: xml_to_json.py [-h] -x XSD_FILE [-o OUTPUT_FORMAT] [-s SERVER]
-                      [-t TARGET_PATH] [-z] [-p XPATH] [-a ATTRIBPATH]
-                      [-e EXCLUDEPATHS] [-m MULTI] [-l LOG] [-v VERBOSE] [-n]
-                      ...
+usage: xml_to_json [-h] -x XSD_FILE [-o OUTPUT_FORMAT] [-s SERVER]
+                   [-t TARGET_PATH] [-z] [-p XPATH] [-a ATTRIBPATHS]
+                   [-e EXCLUDEPATHS] [-m MULTI] [-l LOG] [-v VERBOSE] [-n]
+                   [-d]
+                   ...
 
 XML To JSON Parser
 
 positional arguments:
-  xml_files             xml files to convert
+  input_files           files to convert
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -41,15 +42,14 @@ optional arguments:
   -t TARGET_PATH, --target_path TARGET_PATH
                         target path. hdfs targets require hadoop client
                         installation. Examples: /proj/test, hdfs:///proj/test,
-                        hdfs://hdfsserver/proj/test
+                        hdfs://halfarm/proj/test
   -z, --zip             gzip output file
   -p XPATH, --xpath XPATH
                         xpath to parse out.
-  -a ATTRIBPATH, --attribpath ATTRIBPATH
-                        extra element attributes to parse out. Pass in as a comma
-                        seperated string. /path/include1,/path/include2
+  -a ATTRIBPATHS, --attribpaths ATTRIBPATHS
+                        extra element attributes to parse out.
   -e EXCLUDEPATHS, --excludepaths EXCLUDEPATHS
-                        elements to exclude. Pass in as a comma separated string.
+                        elements to exclude. pass in comma separated string.
                         /path/exclude1,/path/exclude2
   -m MULTI, --multi MULTI
                         number of parsers. Default is 1.
@@ -57,12 +57,12 @@ optional arguments:
   -v VERBOSE, --verbose VERBOSE
                         verbose output level. INFO, DEBUG, etc.
   -n, --no_overwrite    do not overwrite output file if it exists already
-
+  -d, --delete_xml      delete xml file after converting to json
 ```
 
 # Convert a small XML file to a JSON file
 ```python
-python xml_to_json.py -x PurchaseOrder.xsd PurchaseOrder.xml
+xml_to_json -x PurchaseOrder.xsd PurchaseOrder.xml
 
 INFO - 2018-03-20 11:10:24 - Parsing XML Files..
 INFO - 2018-03-20 11:10:24 - Processing 1 files
@@ -161,7 +161,7 @@ cp 1.xml 2.xml
 cp 1.xml 3.xml
 cp 1.xml 4.xml
 
-python xml_to_json.py -o jsonl -m 3 -z -p /purchaseOrder/items/item -x PurchaseOrder.xsd *.xml
+xml_to_json -o jsonl -m 3 -z -p /purchaseOrder/items/item -x PurchaseOrder.xsd *.xml
 
 INFO - 2018-03-20 16:33:50 - Parsing XML Files..
 INFO - 2018-03-20 16:33:50 - Processing 5 files
@@ -223,7 +223,7 @@ zcat *.jsonl.gz
 # Add additional attributes from other elements
 Only attributes from elements found before the xpath can be include
 ```python
-python xml_to_json.py -p /purchaseOrder/items/item -a /purchaseOrder,/purchaseOrder/shipTo -x PurchaseOrder.xsd PurchaseOrder.xml
+xml_to_json -p /purchaseOrder/items/item -a /purchaseOrder,/purchaseOrder/shipTo -x PurchaseOrder.xsd PurchaseOrder.xml
 ```
 JSON output
 ```json
@@ -236,7 +236,7 @@ cat PurchaseOrder.jsonl
 # Exclude xpath elements
 This removes xpaths from your result
 ```python
-python xml_to_json.py -e /purchaseOrder/comment,/purchaseOrder/items -x PurchaseOrder.xsd PurchaseOrder.xml
+xml_to_json -e /purchaseOrder/comment,/purchaseOrder/items -x PurchaseOrder.xsd PurchaseOrder.xml
 ```
 JSON output
 ```json
