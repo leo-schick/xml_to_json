@@ -5,10 +5,9 @@ Author: David Lee
 """
 import argparse
 
-from xml_to_json.convert_xml_to_json import convert_xml_to_json
+from .convert_xml_to_json import convert_xml_to_json
 
-if __name__ == "__main__":
-
+def run():
     parser = argparse.ArgumentParser(description="XML To JSON Parser")
     parser.add_argument("-x", "--xsd_file", required=True, help="xsd file name")
     parser.add_argument("-o", "--output_format", default="jsonl", help="output format json or jsonl. Default is jsonl.")

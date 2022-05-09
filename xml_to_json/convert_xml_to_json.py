@@ -302,7 +302,7 @@ def parse_xml(xml_file, json_file, my_schema, output_format, xpath_list, root, p
     return processed
 
 
-def parse_file(input_file, output_file, xsd_file, output_format, zip, xpath, attribpaths, excludepaths, target_path, server, delete_xml):
+def parse_file(input_file, output_file, xsd_file, output_format, zip, xpath=None, attribpaths=None, excludepaths=None, target_path=None, server=None, delete_xml=None):
     """
     :param input_file: input file
     :param output_file: output file
