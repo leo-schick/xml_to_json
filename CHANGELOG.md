@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0 (2022-05-11)
+* add support to read xml file from stdin via filename `-`
+
 ## 1.1.0 (2022-05-09)
 * rebuild the script to a python module with entry point `xml_to_json`
 * switch xmlschema from 1.0.7 to 1.1.0 to support Python 3.7 (*Note:* older versions might work but are not tested)
