@@ -22,7 +22,7 @@ def run():
     parser.add_argument("-v", "--verbose", default="DEBUG", help="verbose output level. INFO, DEBUG, etc.")
     parser.add_argument("-n", "--no_overwrite", action="store_true", help="do not overwrite output file if it exists already")
     parser.add_argument("-d", "--delete_xml", action="store_true", help="delete xml file after converting to json")
-    parser.add_argument("input_files", nargs=argparse.REMAINDER, help="files to convert")
+    parser.add_argument("input_files", nargs=argparse.REMAINDER, help="files to convert or '-' to read from stdin")
 
     args = parser.parse_args()
 

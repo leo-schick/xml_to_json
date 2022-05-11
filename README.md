@@ -46,7 +46,7 @@ usage: xml_to_json [-h] -x XSD_FILE [-o OUTPUT_FORMAT] [-s SERVER]
 XML To JSON Parser
 
 positional arguments:
-  input_files           files to convert
+  input_files           files to convert or '-' to read from stdin
 
 optional arguments:
   -h, --help            show this help message and exit

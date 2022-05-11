@@ -151,6 +151,10 @@ def open_file(zip, filename):
     :param filename: name of new file
     :return: file handlers
     """
+    if filename == '-':
+        if zip:
+            raise ValueError("zip is not supported from stdin")
+        return os.fdopen(sys.stdout.fileno(), "wb")
     if zip:
         return gzip.open(filename, "wb")
     else:
@@ -432,6 +436,11 @@ def parse_file(input_file, output_file, xsd_file, output_format, zip, xpath=None
                     processed = parse_xml(xml_file, json_file, my_schema, output_format, xpath_list, root, parent, attribpaths_dict, excludepaths_set, excludeparents_set, elem_active, processed, from_zip=False)
 
         else:
+            if input_file == '-':
+                _input_file = sys.stdin
+            else:
+                _input_file = input_file
+
             if xpath_list:
                 if root is None:
                     parent_xpath_list = xpath_list[:-1]
@@ -443,9 +452,9 @@ def parse_file(input_file, output_file, xsd_file, output_format, zip, xpath=None
                             parent_xpath_list = list(k)[:-1]
                             attribpaths_dict[k]['root'], attribpaths_dict[k]['parent'] = parse_root(input_file, parent_xpath_list)
 
-                    processed = parse_xml(input_file, json_file, my_schema, output_format, xpath_list, root, parent, attribpaths_dict, excludepaths_set, excludeparents_set, elem_active, processed, from_zip=False)
+                    processed = parse_xml(_input_file, json_file, my_schema, output_format, xpath_list, root, parent, attribpaths_dict, excludepaths_set, excludeparents_set, elem_active, processed, from_zip=False)
             else:
-                processed = parse_xml(input_file, json_file, my_schema, output_format, xpath_list, root, parent, attribpaths_dict, excludepaths_set, excludeparents_set, elem_active, processed, from_zip=False)
+                processed = parse_xml(_input_file, json_file, my_schema, output_format, xpath_list, root, parent, attribpaths_dict, excludepaths_set, excludeparents_set, elem_active, processed, from_zip=False)
 
         if input_file.endswith((".zip", ".tar.gz")) and output_format == "json":
             json_file.write(bytes(os.linesep + "]", "utf-8"))
@@ -529,7 +538,7 @@ def convert_xml_to_json(xsd_file=None, output_format="jsonl", server=None, targe
                 sys.exit(1)
 
     # open target files
-    file_list = list(set([f for _files in [glob.glob(xml_files[x]) for x in range(0, len(xml_files))] for f in _files]))
+    file_list = list(set([f for _files in [('-' if xml_files[x] == '-' else glob.glob(xml_files[x])) for x in range(0, len(xml_files))] for f in _files]))
     file_count = len(file_list)
 
     if multi > 1:
@@ -545,44 +554,48 @@ def convert_xml_to_json(xsd_file=None, output_format="jsonl", server=None, targe
     for filename in file_list:
 
         path, xml_file = os.path.split(os.path.realpath(filename))
-        
-        output_file = xml_file
 
-        if output_file.endswith(".gz"):
-            output_file = output_file[:-3]
+        if xml_file == '-':
+            output_file = '-'
 
-        if output_file.endswith(".tar"):
-            output_file = output_file[:-4]
-
-        if output_file.endswith(".zip"):
-            output_file = output_file[:-4]
-
-        if output_file.endswith(".xml"):
-            output_file = output_file[:-4]
-
-        if output_format == "jsonl":
-            output_file = output_file + ".jsonl"
         else:
-            output_file = output_file + ".json"
+            output_file = xml_file
 
-        if zip:
-            output_file = output_file + ".gz"
+            if output_file.endswith(".gz"):
+                output_file = output_file[:-3]
 
-        if not target_path:
-            output_file = os.path.join(path, output_file)
-            if no_overwrite and os.path.isfile(output_file):
-                _logger.debug("No overwrite. Skipping " + xml_file)
-                continue
-        elif target_path.startswith("hdfs:"):
-            if no_overwrite and subprocess.call(["hadoop", "fs", "-test", "-e", os.path.join(target_path, output_file)]) == 0:
-                _logger.debug("No overwrite. Skipping " + xml_file)
-                continue
-            output_file = os.path.join(path, output_file)
-        else:
-            output_file = os.path.join(target_path, output_file)
-            if no_overwrite and os.path.isfile(output_file):
-                _logger.debug("No overwrite. Skipping " + xml_file)
-                continue
+            if output_file.endswith(".tar"):
+                output_file = output_file[:-4]
+
+            if output_file.endswith(".zip"):
+                output_file = output_file[:-4]
+
+            if output_file.endswith(".xml"):
+                output_file = output_file[:-4]
+
+            if output_format == "jsonl":
+                output_file = output_file + ".jsonl"
+            else:
+                output_file = output_file + ".json"
+
+            if zip:
+                output_file = output_file + ".gz"
+
+            if not target_path:
+                output_file = os.path.join(path, output_file)
+                if no_overwrite and os.path.isfile(output_file):
+                    _logger.debug("No overwrite. Skipping " + xml_file)
+                    continue
+            elif target_path.startswith("hdfs:"):
+                if no_overwrite and subprocess.call(["hadoop", "fs", "-test", "-e", os.path.join(target_path, output_file)]) == 0:
+                    _logger.debug("No overwrite. Skipping " + xml_file)
+                    continue
+                output_file = os.path.join(path, output_file)
+            else:
+                output_file = os.path.join(target_path, output_file)
+                if no_overwrite and os.path.isfile(output_file):
+                    _logger.debug("No overwrite. Skipping " + xml_file)
+                    continue
 
         if multi > 1:
             parse_queue_pool.apply_async(parse_file, args=(filename, output_file, xsd_file, output_format, zip, xpath, attribpaths, excludepaths, target_path, server, delete_xml), error_callback=_logger.info)
