@@ -12,7 +12,25 @@ Uses Python's iterparse event based methods which enables parsing very large fil
 Files are processed in order with the largest files first to optimize overall parsing time
 Option to write results to either Linux or HDFS folders
 
-# How to run?
+# How to use this repository
+## How to install?
+This module has dependencies which are outdated. Therefore it is recommended to install it in a isolated environment. Use this script to install it in `/opt/xml_to_json/` and make it available as command on unix systems:
+``` shell
+# build the python module
+python3 -m venv .venv
+.venv/bin/pip install pip build wheel
+make build
+
+# install the package in /opt/xml_to_json/* and creates a symlink to /usr/bin/xml_to_json
+make install
+```
+
+## How to remove?
+``` shell
+make remove
+```
+
+## How to run?
 ```python
 xml_to_json
 ```
