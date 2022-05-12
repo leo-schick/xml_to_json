@@ -18,7 +18,7 @@ This module has dependencies which are outdated. Therefore it is recommended to 
 ``` shell
 # build the python module
 python3 -m venv .venv
-.venv/bin/pip install pip build wheel
+.venv/bin/pip install --upgrade pip build wheel
 make build
 
 # install the package in /opt/xml_to_json/* and creates a symlink to /usr/bin/xml_to_json
