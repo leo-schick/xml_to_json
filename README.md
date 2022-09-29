@@ -3,6 +3,8 @@
 This repository contains code for the XML to JSON Converter.
 This converter is written in Python and will convert one or more XML files into JSON / JSONL files
 
+*NOTE:* This is a fork of [davlee1972/xml_to_json](https://github.com/davlee1972/xml_to_json)
+
 # Key Features
 
 Converts XML to valid JSON or JSONL 
